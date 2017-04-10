@@ -13,7 +13,6 @@ build: node_modules
 	cp -R node_modules/*.* templates/special/node_modules
 	
 	cp app.js templates/special/
-	cp config.js templates/special/
 	cp index.html templates/special/
 	cp package.json templates/special/
 	cp README.md templates/special/
