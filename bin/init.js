@@ -5,8 +5,7 @@ const fs = require('fs');
 require('shelljs/global');
 const shell = require('shelljs');
 const ROOT = path.dirname(__dirname);
-const DESTROOT = 'templates/special';
-console.log(ROOT)
+const DESTROOT = 'templates/';
 
 const copyDirArr = [
   'assets',
@@ -23,6 +22,16 @@ const copyFileArr = [
   'webpack.config.js',
   'weex.html'
 ];
+
+const filterTmpFolder = (folders) => {
+  const reg = /^\./;
+  let tmpFolders = [];
+  tmpFolders = folders.filter((item, index) => {
+    return !reg.test(item);
+  })
+  return tmpFolders;
+}
+
 
 /*
  * 复制目录、子目录，及其中的文件
@@ -69,29 +78,37 @@ const copyDir = (src, dist, callback) => {
   }
 }
 
+const folders = filterTmpFolder(fs.readdirSync('./templates'));
+
 copyDirArr.forEach((item, index) => {
-  copyDir(ROOT + '/' + item, DESTROOT + '/' + item, (err) => {
-    if (err) {
-        console.log(err);
-      }
+  folders.forEach((val, key) => {
+    copyDir(ROOT + '/' + item, DESTROOT + val + '/' + item, (err) => {
+      if (err) {
+          console.log(err);
+        }
+    })
   })
+  
 });
 
 copyFileArr.forEach((item, index) => {
-  fs.stat(item, (err, stat) => {
-    if (err) {
-      callback(err);
-    } else {
-        // 判断是文件还是目录
-        if (stat.isFile()) {
-          shell.exec('cp ' + item + ' ' + DESTROOT + '/' + item, {silent: true}, (code, stdout, stderr) => {
-            if(code != 0) {
-              console.log(stderr);
-            }
-          });
-        }
-    }
+  folders.forEach((val, key) => {
+    fs.stat(item, (err, stat) => {
+      if (err) {
+        callback(err);
+      } else {
+          // 判断是文件还是目录
+          if (stat.isFile()) {
+            shell.exec('cp ' + item + ' ' + DESTROOT + val  + '/' + item, {silent: true}, (code, stdout, stderr) => {
+              if(code != 0) {
+                console.log(stderr);
+              }
+            });
+          }
+      }
+    })
   })
+  
 })
 
 
