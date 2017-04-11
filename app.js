@@ -1,4 +1,4 @@
-import miShop from './customized_modules/shopEvent.js'
+// import miShop from './customized_modules/shopEvent.js'
 import App from './src/index.vue'
 
 if (weex.config.platform == 'Web') {
