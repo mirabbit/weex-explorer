@@ -65,409 +65,22 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 3);
+/******/ 	return __webpack_require__(__webpack_require__.s = 1);
 /******/ })
 /************************************************************************/
 /******/ ([
 /* 0 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var __WEBPACK_AMD_DEFINE_RESULT__;/*
- * Cookies.js - 1.2.3
- * https://github.com/ScottHamper/Cookies
- *
- * This is free and unencumbered software released into the public domain.
- */
-(function (global, undefined) {
-    'use strict';
-
-    var factory = function (window) {
-        if (typeof window.document !== 'object') {
-            throw new Error('Cookies.js requires a `window` with a `document` object');
-        }
-
-        var Cookies = function (key, value, options) {
-            return arguments.length === 1 ?
-                Cookies.get(key) : Cookies.set(key, value, options);
-        };
-
-        // Allows for setter injection in unit tests
-        Cookies._document = window.document;
-
-        // Used to ensure cookie keys do not collide with
-        // built-in `Object` properties
-        Cookies._cacheKeyPrefix = 'cookey.'; // Hurr hurr, :)
-        
-        Cookies._maxExpireDate = new Date('Fri, 31 Dec 9999 23:59:59 UTC');
-
-        Cookies.defaults = {
-            path: '/',
-            secure: false
-        };
-
-        Cookies.get = function (key) {
-            if (Cookies._cachedDocumentCookie !== Cookies._document.cookie) {
-                Cookies._renewCache();
-            }
-            
-            var value = Cookies._cache[Cookies._cacheKeyPrefix + key];
-
-            return value === undefined ? undefined : decodeURIComponent(value);
-        };
-
-        Cookies.set = function (key, value, options) {
-            options = Cookies._getExtendedOptions(options);
-            options.expires = Cookies._getExpiresDate(value === undefined ? -1 : options.expires);
-
-            Cookies._document.cookie = Cookies._generateCookieString(key, value, options);
-
-            return Cookies;
-        };
-
-        Cookies.expire = function (key, options) {
-            return Cookies.set(key, undefined, options);
-        };
-
-        Cookies._getExtendedOptions = function (options) {
-            return {
-                path: options && options.path || Cookies.defaults.path,
-                domain: options && options.domain || Cookies.defaults.domain,
-                expires: options && options.expires || Cookies.defaults.expires,
-                secure: options && options.secure !== undefined ?  options.secure : Cookies.defaults.secure
-            };
-        };
-
-        Cookies._isValidDate = function (date) {
-            return Object.prototype.toString.call(date) === '[object Date]' && !isNaN(date.getTime());
-        };
-
-        Cookies._getExpiresDate = function (expires, now) {
-            now = now || new Date();
-
-            if (typeof expires === 'number') {
-                expires = expires === Infinity ?
-                    Cookies._maxExpireDate : new Date(now.getTime() + expires * 1000);
-            } else if (typeof expires === 'string') {
-                expires = new Date(expires);
-            }
-
-            if (expires && !Cookies._isValidDate(expires)) {
-                throw new Error('`expires` parameter cannot be converted to a valid Date instance');
-            }
-
-            return expires;
-        };
-
-        Cookies._generateCookieString = function (key, value, options) {
-            key = key.replace(/[^#$&+\^`|]/g, encodeURIComponent);
-            key = key.replace(/\(/g, '%28').replace(/\)/g, '%29');
-            value = (value + '').replace(/[^!#$&-+\--:<-\[\]-~]/g, encodeURIComponent);
-            options = options || {};
-
-            var cookieString = key + '=' + value;
-            cookieString += options.path ? ';path=' + options.path : '';
-            cookieString += options.domain ? ';domain=' + options.domain : '';
-            cookieString += options.expires ? ';expires=' + options.expires.toUTCString() : '';
-            cookieString += options.secure ? ';secure' : '';
-
-            return cookieString;
-        };
-
-        Cookies._getCacheFromString = function (documentCookie) {
-            var cookieCache = {};
-            var cookiesArray = documentCookie ? documentCookie.split('; ') : [];
-
-            for (var i = 0; i < cookiesArray.length; i++) {
-                var cookieKvp = Cookies._getKeyValuePairFromCookieString(cookiesArray[i]);
-
-                if (cookieCache[Cookies._cacheKeyPrefix + cookieKvp.key] === undefined) {
-                    cookieCache[Cookies._cacheKeyPrefix + cookieKvp.key] = cookieKvp.value;
-                }
-            }
-
-            return cookieCache;
-        };
-
-        Cookies._getKeyValuePairFromCookieString = function (cookieString) {
-            // "=" is a valid character in a cookie value according to RFC6265, so cannot `split('=')`
-            var separatorIndex = cookieString.indexOf('=');
-
-            // IE omits the "=" when the cookie value is an empty string
-            separatorIndex = separatorIndex < 0 ? cookieString.length : separatorIndex;
-
-            var key = cookieString.substr(0, separatorIndex);
-            var decodedKey;
-            try {
-                decodedKey = decodeURIComponent(key);
-            } catch (e) {
-                if (console && typeof console.error === 'function') {
-                    console.error('Could not decode cookie with key "' + key + '"', e);
-                }
-            }
-            
-            return {
-                key: decodedKey,
-                value: cookieString.substr(separatorIndex + 1) // Defer decoding value until accessed
-            };
-        };
-
-        Cookies._renewCache = function () {
-            Cookies._cache = Cookies._getCacheFromString(Cookies._document.cookie);
-            Cookies._cachedDocumentCookie = Cookies._document.cookie;
-        };
-
-        Cookies._areEnabled = function () {
-            var testKey = 'cookies.js';
-            var areEnabled = Cookies.set(testKey, 1).get(testKey) === '1';
-            Cookies.expire(testKey);
-            return areEnabled;
-        };
-
-        Cookies.enabled = Cookies._areEnabled();
-
-        return Cookies;
-    };
-    var cookiesExport = (global && typeof global.document === 'object') ? factory(global) : factory;
-
-    // AMD support
-    if (true) {
-        !(__WEBPACK_AMD_DEFINE_RESULT__ = function () { return cookiesExport; }.call(exports, __webpack_require__, exports, module),
-				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-    // CommonJS/Node.js support
-    } else if (typeof exports === 'object') {
-        // Support Node.js specific `module.exports` (which can be a function)
-        if (typeof module === 'object' && typeof module.exports === 'object') {
-            exports = module.exports = cookiesExport;
-        }
-        // But always support CommonJS module 1.1.1 spec (`exports` cannot be a function)
-        exports.Cookies = cookiesExport;
-    } else {
-        global.Cookies = cookiesExport;
-    }
-})(typeof window === 'undefined' ? this : window);
-
-/***/ }),
-/* 1 */
-/***/ (function(module, exports, __webpack_require__) {
-
-if (weex.config.platform == 'Web') {
-  const Cookies = __webpack_require__(0);
-  //require('whatwg-fetch');
-  //const fetchJsonp = require('fetch-jsonp');
-  const stream = weex.requireModule('stream');
-  var wxSDK = __webpack_require__(5);
-
-  weex.registerModule('shopEvent', {
-    trigger(eventName, arg, callback) {
-      switch (eventName) {
-        case 'login':
-          let url = '';
-          let protocol = location.protocol;
-
-          if (arg == '') {
-            url = "//m.mi.com/v1/authorize/sso?client_id=180100031013&callback=" + encodeURIComponent(location.href);
-            location.href = url;
-          } else {
-            arg = JSON.parse(arg);
-            if (arg.domain === 'i.huodong.mi.com') {
-              url = "//m.mi.com/v1/authorize/sso?client_id=180100031013&callback=" + encodeURIComponent(protocol + '//i.huodong.mi.com/user/mjump?srcUrl=' + location.href);
-              location.href = url;
-            }
-          }
-          break;
-        case 'showPlugin':
-          arg = JSON.parse(arg);
-          if (arg.type == 'product') {
-            location.href = '//m.mi.com/#/product/view?product_id=' + arg.extra.commodityId;
-          } else if (arg.type == 'list') {
-            location.href = '//m.mi.com/#/product/list?id=' + arg.extra.extra_category_id;
-          }
-          break;
-        case 'product':
-          location.href = '//m.mi.com/#/product/view?product_id=' + arg;
-          break;
-        case 'goCart':
-          location.href = '//m.mi.com/#/cart/index';
-          break;
-        case 'getDeviceid':
-        case 'getHashDeviceid':
-        case 'getPhones':
-        case 'getEncryptUid':
-        case 'getShopDeviceid':
-          callback && callback({ error: null, data: '' });
-          break;
-        case 'hasLogin':
-          if (arg == '') {
-            if (Cookies('userId') || Cookies('cUserId')) {
-              callback && callback({ error: null, data: true });
-            } else {
-              callback && callback({ error: null, data: false });
-            }
-          } else {
-            arg = JSON.parse(arg);
-            if (arg.domain === 'i.huodong.mi.com') {
-              stream.fetch({
-                method: 'GET',
-                type: 'jsonp',
-                headers: {},
-                body: '',
-                url: '//i.huodong.mi.com/site/islogin'
-              }, function (response) {
-                if (response.ok) {
-                  if (response.data.code === 1) {
-                    callback && callback({ error: null, data: 0 });
-                  } else if (response.data.code === -1) {
-                    callback && callback({ error: null, data: 1 });
-                  }
-                } else {
-                  callback && callback({ error: null, data: 2 });
-                }
-              });
-            }
-          }
-          break;
-        case 'openBrowser':
-          if (arg) {
-            location.href = decodeURIComponent(arg);
-          }
-          break;
-        case 'fCode':
-          location.href = '//m.mi.com/#/fcode';
-          break;
-        case 'openCommunity':
-          location.href = '//bbs.xiaomi.cn/';
-          break;
-        case 'goHome':
-          location.href = '//m.mi.com/';
-          break;
-        case 'orderList':
-          location.href = '//m.mi.com/#/order/list';
-          break;
-        case 'goCoupon':
-          location.href = '//m.mi.com/#/user/coupon';
-          break;
-        case 'isWifi':
-          callback && callback({ error: null, data: 2 });
-          break;
-        case 'weibo':
-          if (arg) {
-            arg = JSON.parse(arg);
-            location.href = "http://service.weibo.com/share/share.php?title=" + arg.text + "&pic=" + arg.image + "&url=" + arg.url || encodeURIComponent(location.href);
-          }
-          break;
-        case 'customTitle':
-          document.title = arg;
-          callback && callback({ error: null, data: null });
-          break;
-        case 'addCart':
-          if (arg) {
-            arg = JSON.parse(arg);
-          }
-
-          stream.fetch({
-            method: 'GET',
-            type: 'jsonp',
-            headers: {},
-            body: 'framework=weex&client_id=180100031051' + '&product_id=' + arg.product_id + '&consumption=' + arg.consumption,
-            url: '//m.mi.com/v1/cart/add'
-          }, function (response) {
-            if (response.ok) {
-              if (response.data.code === 0) {
-                // 成功
-                callback && callback({ error: null, data: 0 }); // 0 成功
-              } else if (response.data.code === 10001002) {
-                // 没有登录
-                callback && callback({ error: null, data: 10001002 }); // 1 没有登录
-              } else if (response.data.code === 10001008) {
-                // 该接口不支持jsonp调用
-                callback && callback({ error: null, data: 10001008 }); // 2 不支持jsonp调用
-              } else if (response.data.code === 10001001) {
-                // 未授权的应用
-                callback && callback({ error: null, data: 10001001 });
-              } else if (response.data.code === 2003009) {
-                // 已达到最大购买数量
-                callback && callback({ error: null, data: 2003009 });
-              } else {
-                // 添加手机失败
-                callback && callback({ error: null, data: 1 }); // 4 添加失败
-              }
-            } else {
-              callback && callback({ error: null, data: 2 });
-            }
-          });
-
-          //let cartUrl = '//m.mi.com/v1/cart/add?client_id=180100031051';
-          //cartUrl += '&product_id=' + arg.product_id;
-          //cartUrl += '&consumption=' + arg.consumption;
-
-          //fetchJsonp(cartUrl, {
-          //jsonpCallback: 'callback',
-          //timeout: 3000
-          //})
-          //.then(function(response) {
-          //return response.json()
-          //}).then(function(json) {
-          //if(json.code === 0) { // 成功
-          //callback && callback({error: null, data: 0}); // 0 成功
-          //} else if(res.code === 10001002) { // 没有登录
-          //callback && callback({error: null, data: 10001002}); // 1 没有登录
-          //} else if(res.code === 10001008) { // 该接口不支持jsonp调用
-          //callback && callback({error: null, data: 10001008}); // 2 不支持jsonp调用
-          //} else if(res.code === 10001001) { // 未授权的应用
-          //callback && callback({error: null, data: 10001001}); // 3 未授权的应用
-          //} else { // 添加手机失败
-          //callback && callback({error: null, data: 1}); // 4 添加失败
-          //}
-          //}).catch(function(ex) {
-          //callback && callback(null, false);
-          //});
-          break;
-        case 'sendWx': // TODO
-        case 'showTitlebar':
-        case 'hideTitlebar':
-        case 'close':
-        case 'clearWebCache':
-        case 'callTel':
-        case 'openNew':
-        case 'openVideo':
-        case 'openSnsDialog':
-        case 'setMenuShareInfo':
-        case 'wxShare':
-          if (!arg) {
-            return false;
-          }
-          try {
-            arg = JSON.parse(arg);
-          } catch (e) {
-            return false;
-          }
-
-          wxSDK.share({
-            title: arg.title,
-            desc: arg.desc,
-            url: arg.url,
-            image: arg.image
-          });
-        default:
-          return false;
-      }
-    }
-  });
-}
-
-/***/ }),
-/* 2 */
-/***/ (function(module, exports, __webpack_require__) {
-
 
 /* styles */
-__webpack_require__(11)
+__webpack_require__(8)
 
-var Component = __webpack_require__(9)(
+var Component = __webpack_require__(6)(
   /* script */
-  __webpack_require__(6),
+  __webpack_require__(2),
   /* template */
-  __webpack_require__(10),
+  __webpack_require__(7),
   /* scopeId */
   "data-v-4c1ba3c5",
   /* cssModules */
@@ -494,16 +107,14 @@ module.exports = Component.exports
 
 
 /***/ }),
-/* 3 */
+/* 1 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__customized_modules_shopEvent_js__ = __webpack_require__(1);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__customized_modules_shopEvent_js___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__customized_modules_shopEvent_js__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__src_index_vue__ = __webpack_require__(2);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__src_index_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1__src_index_vue__);
-
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__src_index_vue__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__src_index_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__src_index_vue__);
+// import miShop from './customized_modules/shopEvent.js'
 
 
 if (weex.config.platform == 'Web') {
@@ -512,121 +123,11 @@ if (weex.config.platform == 'Web') {
     window.global = window;
   }
 }
-__WEBPACK_IMPORTED_MODULE_1__src_index_vue___default.a.el = '#root';
-/* harmony default export */ __webpack_exports__["default"] = (new Vue(__WEBPACK_IMPORTED_MODULE_1__src_index_vue___default.a));
+__WEBPACK_IMPORTED_MODULE_0__src_index_vue___default.a.el = '#root';
+/* harmony default export */ __webpack_exports__["default"] = (new Vue(__WEBPACK_IMPORTED_MODULE_0__src_index_vue___default.a));
 
 /***/ }),
-/* 4 */
-/***/ (function(module, exports) {
-
-const getScript = (src, func) => {
-  let script = document.createElement('script');
-  script.async = "async";
-  script.src = src;
-  if (func) {
-    script.onload = func;
-  }
-  document.getElementsByTagName("head")[0].appendChild(script);
-};
-
-module.exports = {
-  getScript
-};
-
-/***/ }),
-/* 5 */
-/***/ (function(module, exports, __webpack_require__) {
-
-const stream = weex.requireModule('stream');
-const utils = __webpack_require__(4);
-
-const isWeixin = navigator.userAgent.toLowerCase().match(/MicroMessenger/i) == "micromessenger";
-
-const getWeixinSDK = callback => {
-  const data = {
-    m: 'interface-weixin',
-    do: 'sdk_signature_info',
-    public_id: 'gh_f10ac97bb079',
-    url: location.href,
-    type: 'jsonp'
-  };
-  try {
-    stream.fetch({
-      method: 'GET',
-      headers: {},
-      url: '//xmt.www.mi.com/index.php?callback=?',
-      body: 'm=interface-weixin&do=sdk_signature_info&public_id=gh_f10ac97bb079&url=' + encodeURIComponent(location.href) + '&type=jsonp',
-      type: 'jsonp'
-    }, function (rsp) {
-      if (rsp.ok) {
-        callback && callback(rsp.data);
-      } else {
-        callback && callback({ error: null, data: 2 });
-      }
-    });
-  } catch (e) {}
-};
-
-const share = opts => {
-  if (!isWeixin) return false;
-
-  function shareOPtion() {
-    try {
-      getWeixinSDK(Auth => {
-        alert('auth');
-        window.wx.config({
-          appId: 'wx8388fce6cb5c6eca',
-          timestamp: Auth.data.timestamp,
-          nonceStr: Auth.data.nonce_str,
-          signature: Auth.data.signature,
-          jsApiList: ['onMenuShareTimeline', 'onMenuShareAppMessage', 'onMenuShareQQ', 'onMenuShareWeibo', 'hideAllNonBaseMenuItem']
-        });
-      });
-
-      window.wx.ready(() => {
-        window.wx.onMenuShareTimeline({
-          title: opts.title,
-          desc: opts.desc || '',
-          link: opts.url,
-          imgUrl: opts.image
-        });
-        window.wx.onMenuShareAppMessage({
-          title: opts.title,
-          desc: opts.desc || '',
-          link: opts.url,
-          imgUrl: opts.image
-        });
-        window.wx.onMenuShareQQ({
-          title: opts.title,
-          desc: opts.desc || '',
-          link: opts.url,
-          imgUrl: opts.image
-        });
-      });
-    } catch (e) {
-      return;
-    }
-  }
-
-  if (window.wx && window.wx.ready) {
-    shareOPtion();
-  } else {
-    getJsWxSDK(shareOPtion);
-  }
-};
-
-const getJsWxSDK = cb => {
-  utils.getScript('http://res.wx.qq.com/open/js/jweixin-1.0.0.js', () => {
-    cb && cb();
-  });
-};
-
-module.exports = {
-  share
-};
-
-/***/ }),
-/* 6 */
+/* 2 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -759,7 +260,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 const modal = weex.requireModule('modal');
 const miShop = weex.requireModule('shopEvent');
 const stream = weex.requireModule('stream');
-const Cookies = __webpack_require__(0);
+const Cookies = __webpack_require__(3);
 
 function transformToJson(beforeData) {
   if (typeof beforeData === 'object') {
@@ -1797,10 +1298,188 @@ function transformToJson(beforeData) {
 });
 
 /***/ }),
-/* 7 */
+/* 3 */
 /***/ (function(module, exports, __webpack_require__) {
 
-exports = module.exports = __webpack_require__(8)();
+var __WEBPACK_AMD_DEFINE_RESULT__;/*
+ * Cookies.js - 1.2.3
+ * https://github.com/ScottHamper/Cookies
+ *
+ * This is free and unencumbered software released into the public domain.
+ */
+(function (global, undefined) {
+    'use strict';
+
+    var factory = function (window) {
+        if (typeof window.document !== 'object') {
+            throw new Error('Cookies.js requires a `window` with a `document` object');
+        }
+
+        var Cookies = function (key, value, options) {
+            return arguments.length === 1 ?
+                Cookies.get(key) : Cookies.set(key, value, options);
+        };
+
+        // Allows for setter injection in unit tests
+        Cookies._document = window.document;
+
+        // Used to ensure cookie keys do not collide with
+        // built-in `Object` properties
+        Cookies._cacheKeyPrefix = 'cookey.'; // Hurr hurr, :)
+        
+        Cookies._maxExpireDate = new Date('Fri, 31 Dec 9999 23:59:59 UTC');
+
+        Cookies.defaults = {
+            path: '/',
+            secure: false
+        };
+
+        Cookies.get = function (key) {
+            if (Cookies._cachedDocumentCookie !== Cookies._document.cookie) {
+                Cookies._renewCache();
+            }
+            
+            var value = Cookies._cache[Cookies._cacheKeyPrefix + key];
+
+            return value === undefined ? undefined : decodeURIComponent(value);
+        };
+
+        Cookies.set = function (key, value, options) {
+            options = Cookies._getExtendedOptions(options);
+            options.expires = Cookies._getExpiresDate(value === undefined ? -1 : options.expires);
+
+            Cookies._document.cookie = Cookies._generateCookieString(key, value, options);
+
+            return Cookies;
+        };
+
+        Cookies.expire = function (key, options) {
+            return Cookies.set(key, undefined, options);
+        };
+
+        Cookies._getExtendedOptions = function (options) {
+            return {
+                path: options && options.path || Cookies.defaults.path,
+                domain: options && options.domain || Cookies.defaults.domain,
+                expires: options && options.expires || Cookies.defaults.expires,
+                secure: options && options.secure !== undefined ?  options.secure : Cookies.defaults.secure
+            };
+        };
+
+        Cookies._isValidDate = function (date) {
+            return Object.prototype.toString.call(date) === '[object Date]' && !isNaN(date.getTime());
+        };
+
+        Cookies._getExpiresDate = function (expires, now) {
+            now = now || new Date();
+
+            if (typeof expires === 'number') {
+                expires = expires === Infinity ?
+                    Cookies._maxExpireDate : new Date(now.getTime() + expires * 1000);
+            } else if (typeof expires === 'string') {
+                expires = new Date(expires);
+            }
+
+            if (expires && !Cookies._isValidDate(expires)) {
+                throw new Error('`expires` parameter cannot be converted to a valid Date instance');
+            }
+
+            return expires;
+        };
+
+        Cookies._generateCookieString = function (key, value, options) {
+            key = key.replace(/[^#$&+\^`|]/g, encodeURIComponent);
+            key = key.replace(/\(/g, '%28').replace(/\)/g, '%29');
+            value = (value + '').replace(/[^!#$&-+\--:<-\[\]-~]/g, encodeURIComponent);
+            options = options || {};
+
+            var cookieString = key + '=' + value;
+            cookieString += options.path ? ';path=' + options.path : '';
+            cookieString += options.domain ? ';domain=' + options.domain : '';
+            cookieString += options.expires ? ';expires=' + options.expires.toUTCString() : '';
+            cookieString += options.secure ? ';secure' : '';
+
+            return cookieString;
+        };
+
+        Cookies._getCacheFromString = function (documentCookie) {
+            var cookieCache = {};
+            var cookiesArray = documentCookie ? documentCookie.split('; ') : [];
+
+            for (var i = 0; i < cookiesArray.length; i++) {
+                var cookieKvp = Cookies._getKeyValuePairFromCookieString(cookiesArray[i]);
+
+                if (cookieCache[Cookies._cacheKeyPrefix + cookieKvp.key] === undefined) {
+                    cookieCache[Cookies._cacheKeyPrefix + cookieKvp.key] = cookieKvp.value;
+                }
+            }
+
+            return cookieCache;
+        };
+
+        Cookies._getKeyValuePairFromCookieString = function (cookieString) {
+            // "=" is a valid character in a cookie value according to RFC6265, so cannot `split('=')`
+            var separatorIndex = cookieString.indexOf('=');
+
+            // IE omits the "=" when the cookie value is an empty string
+            separatorIndex = separatorIndex < 0 ? cookieString.length : separatorIndex;
+
+            var key = cookieString.substr(0, separatorIndex);
+            var decodedKey;
+            try {
+                decodedKey = decodeURIComponent(key);
+            } catch (e) {
+                if (console && typeof console.error === 'function') {
+                    console.error('Could not decode cookie with key "' + key + '"', e);
+                }
+            }
+            
+            return {
+                key: decodedKey,
+                value: cookieString.substr(separatorIndex + 1) // Defer decoding value until accessed
+            };
+        };
+
+        Cookies._renewCache = function () {
+            Cookies._cache = Cookies._getCacheFromString(Cookies._document.cookie);
+            Cookies._cachedDocumentCookie = Cookies._document.cookie;
+        };
+
+        Cookies._areEnabled = function () {
+            var testKey = 'cookies.js';
+            var areEnabled = Cookies.set(testKey, 1).get(testKey) === '1';
+            Cookies.expire(testKey);
+            return areEnabled;
+        };
+
+        Cookies.enabled = Cookies._areEnabled();
+
+        return Cookies;
+    };
+    var cookiesExport = (global && typeof global.document === 'object') ? factory(global) : factory;
+
+    // AMD support
+    if (true) {
+        !(__WEBPACK_AMD_DEFINE_RESULT__ = function () { return cookiesExport; }.call(exports, __webpack_require__, exports, module),
+				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+    // CommonJS/Node.js support
+    } else if (typeof exports === 'object') {
+        // Support Node.js specific `module.exports` (which can be a function)
+        if (typeof module === 'object' && typeof module.exports === 'object') {
+            exports = module.exports = cookiesExport;
+        }
+        // But always support CommonJS module 1.1.1 spec (`exports` cannot be a function)
+        exports.Cookies = cookiesExport;
+    } else {
+        global.Cookies = cookiesExport;
+    }
+})(typeof window === 'undefined' ? this : window);
+
+/***/ }),
+/* 4 */
+/***/ (function(module, exports, __webpack_require__) {
+
+exports = module.exports = __webpack_require__(5)();
 // imports
 
 
@@ -1811,7 +1490,7 @@ exports.push([module.i, "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\
 
 
 /***/ }),
-/* 8 */
+/* 5 */
 /***/ (function(module, exports) {
 
 /*
@@ -1867,7 +1546,7 @@ module.exports = function() {
 
 
 /***/ }),
-/* 9 */
+/* 6 */
 /***/ (function(module, exports) {
 
 module.exports = function normalizeComponent (
@@ -1920,7 +1599,7 @@ module.exports = function normalizeComponent (
 
 
 /***/ }),
-/* 10 */
+/* 7 */
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
@@ -2156,17 +1835,17 @@ if (false) {
 }
 
 /***/ }),
-/* 11 */
+/* 8 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // style-loader: Adds some css to the DOM by adding a <style> tag
 
 // load the styles
-var content = __webpack_require__(7);
+var content = __webpack_require__(4);
 if(typeof content === 'string') content = [[module.i, content, '']];
 if(content.locals) module.exports = content.locals;
 // add the styles to the DOM
-var update = __webpack_require__(12)("27011946", content, false);
+var update = __webpack_require__(9)("27011946", content, false);
 // Hot Module Replacement
 if(false) {
  // When the styles change, update the <style> tags
@@ -2182,7 +1861,7 @@ if(false) {
 }
 
 /***/ }),
-/* 12 */
+/* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*
@@ -2201,7 +1880,7 @@ if (typeof DEBUG !== 'undefined' && DEBUG) {
   ) }
 }
 
-var listToStyles = __webpack_require__(13)
+var listToStyles = __webpack_require__(10)
 
 /*
 type StyleObject = {
@@ -2403,7 +2082,7 @@ function applyToTag (styleElement, obj) {
 
 
 /***/ }),
-/* 13 */
+/* 10 */
 /***/ (function(module, exports) {
 
 /**

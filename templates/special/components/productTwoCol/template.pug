@@ -1,0 +1,6 @@
+.container
+	.row(v-for="items in cmsList")
+		.pro-area(v-for="item in items", @click="product(item.product_id)")
+			image.pro-img(:src="item.image")
+			text.pro-info {{item.name}}
+			text.pro-price ￥{{item.price}}

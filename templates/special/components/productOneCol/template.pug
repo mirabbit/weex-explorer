@@ -1,0 +1,5 @@
+.container
+	.pro-area(v-for="item in productList", @click="product(item.product_id)")
+		image.pro-img(:src="item && item.image")
+		text.pro-info {{item.name}}
+		text.pro-price ￥{{item.price}}
