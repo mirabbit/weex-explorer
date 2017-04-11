@@ -1,0 +1,13 @@
+.container { align-items: center; }
+.title { font-size: 48px; }
+.logo { width: 750px; height: 701px; }
+.word-area { width: 750px;  padding: 40px;text-align: center; background-color: #eaeaea; }
+.info {text-align: center; font-size: 26px; line-height: 50px; }
+.germany-award { width: 750px; height: 429px; }
+.fn-left { text-align: left}
+
+.cms-product-area { padding-bottom: 50px; }
+.row { flex-direction: row;}
+.pro-area { flex: 1; height: 550px;}
+.pro-img { width: 375px; flex: 1; }
+.pro-info, .pro-price { font-size: 24px; text-align: center; padding-top: 34px; }

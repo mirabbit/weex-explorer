@@ -14,3 +14,11 @@ yarn-error.log
 typings/*
 typings.json
 config.js
+templates/**/README.md
+templates/**/assets/
+templates/**/build/
+templates/**/customized_modules/
+templates/**/index.html
+templates/**/package.json
+templates/**/webpack.config.js
+templates/**/weex.html
